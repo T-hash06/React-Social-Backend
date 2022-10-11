@@ -15,14 +15,10 @@ declare global {
 	interface ServiceResponse<T> {
 		statusCode: HttpStatus;
 		data: T | null;
-		error?: string;
+		error?: string | string[];
 	}
 
 	interface PrismaConflictError extends PrismaClientKnownRequestError {
 		meta: { target: string };
-	}
-
-	enum PrismaErrors {
-		CONFLICT = 'P2002',
 	}
 }

@@ -29,20 +29,25 @@ export class UsersService {
 
 	async createOne(user: UserInterface): Promise<ServiceResponse<string>> {
 		try {
-			await this.prismaService.user.create({ data: user });
-		} catch (error) {
-			const prismaError = error as PrismaConflictError;
+			const findByEmail = await this.prismaService.user.findUnique({
+				where: { email: user.email },
+			});
 
-			if (prismaError.code === 'P2002') {
-				const field = prismaError.meta.target;
+			const findByUsername = await this.prismaService.user.findUnique({
+				where: { username: user.username },
+			});
 
-				return {
-					statusCode: HttpStatus.CONFLICT,
-					data: field,
-					error: `Data ${field} already exists`,
-				};
+			const errors = [
+				...(findByEmail !== null ? ['email'] : []),
+				...(findByUsername !== null ? ['username'] : []),
+			];
+
+			if (errors.length !== 0) {
+				return { statusCode: HttpStatus.CONFLICT, error: errors, data: null };
 			}
 
+			await this.prismaService.user.create({ data: user });
+		} catch (error) {
 			throw error;
 		}
 
@@ -51,13 +56,21 @@ export class UsersService {
 
 	async deleteOne(username: string): Promise<ServiceResponse<null>> {
 		try {
+			const existsByUsername = await this.prismaService.user.findUnique({
+				where: { username },
+			});
+
+			if (existsByUsername === null) {
+				return {
+					statusCode: HttpStatus.NOT_FOUND,
+					data: null,
+					error: `User '${username}' not found`,
+				};
+			}
+
 			await this.prismaService.user.delete({ where: { username } });
-		} catch (_) {
-			return {
-				statusCode: HttpStatus.NOT_FOUND,
-				data: null,
-				error: `User '${username}' not found`,
-			};
+		} catch (error) {
+			throw error;
 		}
 
 		return { statusCode: HttpStatus.OK, data: null };
