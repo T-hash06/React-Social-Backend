@@ -1,9 +1,9 @@
 import { Controller, Get } from '@nestjs/common';
 
-@Controller()
-export class AppController {
+@Controller('/users')
+export class UsersController {
 	@Get()
 	findAll(): string {
-		return 'Hello There';
+		return 'Hola Mundo';
 	}
 }
