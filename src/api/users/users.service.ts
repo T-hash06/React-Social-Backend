@@ -1,5 +1,6 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/database/database.service';
+import { hash } from 'bcrypt';
 
 @Injectable()
 export class UsersService {
@@ -46,7 +47,9 @@ export class UsersService {
 				return { statusCode: HttpStatus.CONFLICT, error: errors, data: null };
 			}
 
-			await this.prismaService.user.create({ data: user });
+			const hashedPassword = await hash(user.password, 8);
+
+			await this.prismaService.user.create({ data: { ...user, password: hashedPassword } });
 		} catch (error) {
 			throw error;
 		}
