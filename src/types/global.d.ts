@@ -12,6 +12,11 @@ declare global {
 		password: string;
 	}
 
+	interface AuthQueryInterface {
+		username: string;
+		password: string;
+	}
+
 	interface ServiceResponse<T> {
 		statusCode: HttpStatus;
 		data: T | null;
