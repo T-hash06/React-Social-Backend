@@ -17,6 +17,16 @@ declare global {
 		password: string;
 	}
 
+	interface SessionData {
+		username: string;
+		sub: string;
+	}
+
+	interface JwtDecodedData extends SessionData {
+		iat: number;
+		exp: number;
+	}
+
 	interface ServiceResponse<T> {
 		statusCode: HttpStatus;
 		data: T | null;

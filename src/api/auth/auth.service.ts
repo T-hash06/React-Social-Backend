@@ -1,13 +1,14 @@
 import { HttpStatus, Injectable, Post } from '@nestjs/common';
 import { PrismaService } from 'src/database/database.service';
 import { compare } from 'bcrypt';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthService {
-	constructor(private prismaService: PrismaService) {}
+	constructor(private prismaService: PrismaService, private jwtService: JwtService) {}
 
 	@Post()
-	async createSession(authQuery: AuthQueryInterface): Promise<ServiceResponse<null>> {
+	async createSession(authQuery: AuthQueryInterface): Promise<ServiceResponse<string>> {
 		const user = await this.prismaService.user.findUnique({
 			where: { username: authQuery.username },
 		});
@@ -30,6 +31,11 @@ export class AuthService {
 			};
 		}
 
-		return { statusCode: HttpStatus.CREATED, data: null };
+		const dataResponse = this.jwtService.sign({
+			sub: user.id,
+			username: user.username,
+		});
+
+		return { statusCode: HttpStatus.CREATED, data: dataResponse };
 	}
 }
