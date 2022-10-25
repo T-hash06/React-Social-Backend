@@ -8,6 +8,9 @@ async function bootstrap(): Promise<void> {
 
 	app.useGlobalPipes(new ValidationPipe());
 	app.use(helmet());
+	app.enableCors({
+		origin: process.env.FRONTEND_URL,
+	});
 	await app.listen(3000);
 }
 bootstrap();
